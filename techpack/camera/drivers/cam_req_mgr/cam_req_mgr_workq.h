@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
  */
 
 #ifndef _CAM_REQ_MGR_WORKQ_H_
@@ -97,12 +97,6 @@ struct cam_req_mgr_core_workq {
 		uint32_t               num_task;
 	} task;
 };
-
-/**
- * cam_req_mgr_process_workq() - main loop handling
- * @w: workqueue task pointer
- */
-void cam_req_mgr_process_workq(struct work_struct *w);
 
 /**
  * cam_req_mgr_workq_create()

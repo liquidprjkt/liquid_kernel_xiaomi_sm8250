@@ -138,6 +138,7 @@ enum msm_camera_power_seq_type {
 	SENSOR_VAF_PWDM,
 	SENSOR_CUSTOM_REG1,
 	SENSOR_CUSTOM_REG2,
+	SENSOR_CUSTOM_REG3,
 	SENSOR_RESET,
 	SENSOR_STANDBY,
 	SENSOR_CUSTOM_GPIO1,
@@ -161,8 +162,7 @@ enum cam_sensor_packet_opcodes {
 enum cam_actuator_packet_opcodes {
 	CAM_ACTUATOR_PACKET_OPCODE_INIT,
 	CAM_ACTUATOR_PACKET_AUTO_MOVE_LENS,
-	CAM_ACTUATOR_PACKET_MANUAL_MOVE_LENS,
-	CAM_ACTUATOR_PACKET_OPCODE_READ
+	CAM_ACTUATOR_PACKET_MANUAL_MOVE_LENS
 };
 
 enum cam_eeprom_packet_opcodes {
@@ -173,7 +173,8 @@ enum cam_eeprom_packet_opcodes {
 enum cam_ois_packet_opcodes {
 	CAM_OIS_PACKET_OPCODE_INIT,
 	CAM_OIS_PACKET_OPCODE_OIS_CONTROL,
-	CAM_OIS_PACKET_OPCODE_READ
+	CAM_OIS_PACKET_OPCODE_OIS_GETDATA,
+	CAM_OIS_PACKET_OPCODE_TELEOIS_GETDATA
 };
 
 enum msm_bus_perf_setting {
@@ -223,10 +224,8 @@ enum cam_sensor_i2c_cmd_type {
 	CAM_SENSOR_I2C_WRITE_RANDOM,
 	CAM_SENSOR_I2C_WRITE_BURST,
 	CAM_SENSOR_I2C_WRITE_SEQ,
-	CAM_SENSOR_I2C_READ_RANDOM,
-	CAM_SENSOR_I2C_READ_SEQ,
-	CAM_SENSOR_I2C_POLL,
-	CAM_SENSOR_I2C_SET_I2C_INFO
+	CAM_SENSOR_I2C_READ,
+	CAM_SENSOR_I2C_POLL
 };
 
 struct common_header {
@@ -277,8 +276,6 @@ struct cam_sensor_i2c_reg_setting {
 	enum camera_sensor_i2c_type addr_type;
 	enum camera_sensor_i2c_type data_type;
 	unsigned short delay;
-	uint8_t *read_buff;
-	uint32_t read_buff_len;
 };
 
 struct cam_sensor_i2c_seq_reg {
@@ -291,7 +288,6 @@ struct cam_sensor_i2c_seq_reg {
 struct i2c_settings_list {
 	struct cam_sensor_i2c_reg_setting i2c_settings;
 	struct cam_sensor_i2c_seq_reg seq_settings;
-	struct cam_cmd_i2c_info slave_info;
 	enum cam_sensor_i2c_cmd_type op_code;
 	struct list_head list;
 };
@@ -329,7 +325,6 @@ struct cam_camera_slave_info {
 	uint16_t sensor_id_reg_addr;
 	uint16_t sensor_id;
 	uint16_t sensor_id_mask;
-	uint8_t  i2c_freq_mode;
 };
 
 struct msm_sensor_init_params {
@@ -389,6 +384,7 @@ enum msm_camera_vreg_name_t {
 	CAM_VAF,
 	CAM_V_CUSTOM1,
 	CAM_V_CUSTOM2,
+	CAM_V_CUSTOM3,
 	CAM_VREG_MAX,
 };
 
