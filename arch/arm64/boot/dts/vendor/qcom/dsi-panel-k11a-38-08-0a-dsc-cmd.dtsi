@@ -23,8 +23,8 @@
 		qcom,mdss-dsi-dma-trigger = "trigger_sw";
 		qcom,mdss-dsi-mdp-trigger = "none";
 		qcom,mdss-dsi-reset-sequence = <0 10>, <1 10>;
-		qcom,mdss-pan-physical-width-dimension = <70>;
-		qcom,mdss-pan-physical-height-dimension = <155>;
+		qcom,mdss-pan-physical-width-dimension = <700>;
+		qcom,mdss-pan-physical-height-dimension = <1540>;
 		qcom,mdss-dsi-te-pin-select = <1>;
 		qcom,mdss-dsi-wr-mem-start = <0x2c>;
 		qcom,mdss-dsi-wr-mem-continue = <0x3c>;
@@ -43,17 +43,17 @@
 		qcom,bl-update-flag = "delay_until_first_frame";
 
 		qcom,mdss-dsi-display-timings {
-			timing@0 {
-				qcom,mdss-dsi-panel-framerate = <60>;
+			timing@0{
+				qcom,mdss-dsi-panel-framerate = <120>;
 				qcom,mdss-dsi-panel-width = <1080>;
 				qcom,mdss-dsi-panel-height = <2400>;
 				qcom,mdss-dsi-h-front-porch = <16>;
 				qcom,mdss-dsi-h-back-porch = <8>;
 				qcom,mdss-dsi-h-pulse-width = <8>;
 				qcom,mdss-dsi-h-sync-skew = <0>;
-				qcom,mdss-dsi-v-back-porch = <560>;
-				qcom,mdss-dsi-v-front-porch = <600>;
-				qcom,mdss-dsi-v-pulse-width = <32>;
+				qcom,mdss-dsi-v-back-porch = <8>;
+				qcom,mdss-dsi-v-front-porch = <4>;
+				qcom,mdss-dsi-v-pulse-width = <4>;
 				qcom,mdss-dsi-h-sync-pulse = <0>;
 				qcom,mdss-dsi-h-left-border = <0>;
 				qcom,mdss-dsi-h-right-border = <0>;
@@ -61,7 +61,7 @@
 				qcom,mdss-dsi-v-bottom-border = <0>;
 				qcom,mdss-dsi-panel-clockrate = <1100000000>;
 				qcom,mdss-dsi-panel-jitter = <0x5 0x1>;
-				qcom,mdss-mdp-transfer-time-us = <14000>;
+				qcom,mdss-mdp-transfer-time-us = <7000>;
 				qcom,mdss-dsi-on-command = [
 					05 01 00 00 0A 00 02 11 00
 					39 01 00 00 00 00 02 35 00
@@ -114,10 +114,6 @@
 					39 00 00 00 00 00 02 B0 01
 					39 01 00 00 00 00 02 E6 01
 					39 01 00 00 00 00 03 F0 A5 A5
-					39 00 00 00 00 00 03 F0 5A 5A
-					39 00 00 00 00 00 02 B0 08
-					39 00 00 00 00 00 02 D4 05
-					39 01 00 00 00 00 03 F0 A5 A5
 					39 01 00 00 00 00 03 F0 5A 5A
 					39 01 00 00 00 00 03 FC 5A 5A
 					39 00 00 00 00 00 02 B0 16
@@ -130,11 +126,10 @@
 					39 00 00 00 00 00 02 B0 05
 					39 01 00 00 00 00 02 B7 93
 					39 01 00 00 00 00 03 F0 A5 A5
-					39 01 00 00 00 00 02 53 20
+					39 00 00 00 00 00 02 53 20
 					39 01 00 00 00 00 03 51 00 00
 					05 01 00 00 00 00 02 29 00
-					39 01 00 00 00 00 02 60 00
-				];
+					39 01 00 00 00 00 02 60 10];
 				qcom,mdss-dsi-off-command = [
 					05 01 00 00 14 00 02 28 00
 					/* Default Frequency Setting */
@@ -144,14 +139,7 @@
 				qcom,mdss-dsi-off-command-state = "dsi_lp_mode";
 
 				qcom,mdss-dsi-timing-switch-command = [
-					39 00 00 00 00 00 02 60 00
-					39 00 00 00 00 00 03 F0 5A 5A
-					39 00 00 00 00 00 03 FC 5A 5A
-					39 00 00 00 00 00 02 B0 16
-					39 00 00 00 00 00 02 D1 2E
-					39 00 00 00 00 00 03 FC A5 A5
-					39 01 00 00 0C 00 03 F0 A5 A5
-				];
+					39 01 00 00 00 00 02 60 10];
 				qcom,mdss-dsi-timing-switch-command-state = "dsi_lp_mode";
 
 				qcom,mdss-dsi-nolp-command = [
@@ -160,11 +148,7 @@
 					39 00 00 00 00 00 02 EE 06
 					39 00 00 00 00 00 02 B0 0B
 					39 00 00 00 00 00 03 D8 59 70
-					39 00 00 00 00 00 02 60 00
-					39 00 00 00 00 00 03 FC 5A 5A
-					39 00 00 00 00 00 02 B0 16
-					39 00 00 00 00 00 02 D1 2E
-					39 00 00 00 00 00 03 FC A5 A5
+					39 00 00 00 00 00 02 60 10
 					39 01 00 00 00 00 02 53 28
 					39 01 00 00 11 00 03 F0 A5 A5
 				];
@@ -314,18 +298,17 @@
 				qcom,mdss-dsc-bit-per-pixel = <8>;
 				qcom,mdss-dsc-block-prediction-enable;
 			};
-
-			timing@2 {
-				qcom,mdss-dsi-panel-framerate = <120>;
+			timing@1{
+				qcom,mdss-dsi-panel-framerate = <60>;
 				qcom,mdss-dsi-panel-width = <1080>;
 				qcom,mdss-dsi-panel-height = <2400>;
 				qcom,mdss-dsi-h-front-porch = <16>;
 				qcom,mdss-dsi-h-back-porch = <8>;
 				qcom,mdss-dsi-h-pulse-width = <8>;
 				qcom,mdss-dsi-h-sync-skew = <0>;
-				qcom,mdss-dsi-v-back-porch = <8>;
-				qcom,mdss-dsi-v-front-porch = <4>;
-				qcom,mdss-dsi-v-pulse-width = <4>;
+				qcom,mdss-dsi-v-back-porch = <560>;
+				qcom,mdss-dsi-v-front-porch = <600>;
+				qcom,mdss-dsi-v-pulse-width = <32>;
 				qcom,mdss-dsi-h-sync-pulse = <0>;
 				qcom,mdss-dsi-h-left-border = <0>;
 				qcom,mdss-dsi-h-right-border = <0>;
@@ -386,10 +369,6 @@
 					39 00 00 00 00 00 02 B0 01
 					39 01 00 00 00 00 02 E6 01
 					39 01 00 00 00 00 03 F0 A5 A5
-					39 00 00 00 00 00 03 F0 5A 5A
-					39 00 00 00 00 00 02 B0 08
-					39 00 00 00 00 00 02 D4 05
-					39 01 00 00 00 00 03 F0 A5 A5
 					39 01 00 00 00 00 03 F0 5A 5A
 					39 01 00 00 00 00 03 FC 5A 5A
 					39 00 00 00 00 00 02 B0 16
@@ -402,10 +381,10 @@
 					39 00 00 00 00 00 02 B0 05
 					39 01 00 00 00 00 02 B7 93
 					39 01 00 00 00 00 03 F0 A5 A5
-					39 00 00 00 00 00 02 53 20
+					39 01 00 00 00 00 02 53 20
 					39 01 00 00 00 00 03 51 00 00
 					05 01 00 00 00 00 02 29 00
-					39 01 00 00 00 00 02 60 10
+					39 01 00 00 00 00 02 60 00
 				];
 				qcom,mdss-dsi-off-command = [
 					05 01 00 00 14 00 02 28 00
@@ -416,14 +395,7 @@
 				qcom,mdss-dsi-off-command-state = "dsi_lp_mode";
 
 				qcom,mdss-dsi-timing-switch-command = [
-					39 00 00 00 00 00 02 60 10
-					39 00 00 00 00 00 03 F0 5A 5A
-					39 00 00 00 00 00 03 FC 5A 5A
-					39 00 00 00 00 00 02 B0 16
-					39 00 00 00 00 00 02 D1 2E
-					39 00 00 00 00 00 03 FC A5 A5
-					39 01 00 00 00 00 03 F0 A5 A5
-				];
+					39 01 00 00 00 00 02 60 00];
 				qcom,mdss-dsi-timing-switch-command-state = "dsi_lp_mode";
 
 				qcom,mdss-dsi-nolp-command = [
@@ -432,11 +404,7 @@
 					39 00 00 00 00 00 02 EE 06
 					39 00 00 00 00 00 02 B0 0B
 					39 00 00 00 00 00 03 D8 59 70
-					39 00 00 00 00 00 02 60 10
-					39 00 00 00 00 00 03 FC 5A 5A
-					39 00 00 00 00 00 02 B0 16
-					39 00 00 00 00 00 02 D1 2E
-					39 00 00 00 00 00 03 FC A5 A5
+					39 00 00 00 00 00 02 60 00
 					39 01 00 00 00 00 02 53 28
 					39 01 00 00 09 00 03 F0 A5 A5
 				];
@@ -482,8 +450,7 @@
 			mi,mdss-dsi-hbm-off-command-state = "dsi_lp_mode";
 
 			mi,mdss-dsi-doze-hbm-command = [
-				05 01 00 00 00 00 02 28 00
-				39 00 00 00 00 00 03 F0 5A 5A
+				39 01 00 00 00 00 03 F0 5A 5A
 				39 00 00 00 00 00 02 60 00
 				39 00 00 00 00 00 03 FC 5A 5A
 				39 00 00 00 00 00 02 B0 16
@@ -491,13 +458,11 @@
 				39 00 00 00 00 00 03 FC A5 A5
 				39 00 00 00 00 00 02 B0 0B
 				39 00 00 00 00 00 03 D8 50 00
-				39 00 00 00 00 00 02 53 22
-				39 01 00 00 22 00 03 F0 A5 A5
-				05 01 00 00 00 00 02 29 00
+				39 01 00 00 00 00 02 53 22
+				39 01 00 00 00 00 03 F0 5A 5A
 			];
 			mi,mdss-dsi-doze-lbm-command = [
-				05 01 00 00 00 00 02 28 00
-				39 00 00 00 00 00 03 F0 5A 5A
+				39 01 00 00 00 00 03 F0 5A 5A
 				39 00 00 00 00 00 02 60 00
 				39 00 00 00 00 00 03 FC 5A 5A
 				39 00 00 00 00 00 02 B0 16
@@ -505,27 +470,26 @@
 				39 00 00 00 00 00 03 FC A5 A5
 				39 00 00 00 00 00 02 B0 0B
 				39 00 00 00 00 00 03 D8 50 00
-				39 00 00 00 00 00 02 53 23
-				39 01 00 00 22 00 03 F0 A5 A5
-				05 01 00 00 00 00 02 29 00
+				39 01 00 00 00 00 02 53 23
+				39 01 00 00 00 00 03 F0 5A 5A
 			];
 			mi,mdss-dsi-doze-hbm-command-state = "dsi_lp_mode";
 			mi,mdss-dsi-doze-lbm-command-state = "dsi_lp_mode";
 
-			mi,mdss-dsi-flat-on-command = [
-				39 00 00 00 00 00 03 F0 5A 5A
-				39 00 00 00 00 00 03 C2 2D 27
-				39 00 00 00 00 00 02 F7 03
+			mi,mdss-dsi-flat-mode-on-command = [
+				39 01 00 00 00 00 03 F0 5A 5A
+				39 00 00 00 00 00 1D C2 2D 27 FE 82 C6 70 82 70 CA 0A 0A 0A 28 28 28 35 35 35 3F 3F 3F 42 42 42 1B DA 2F 48
+				39 01 00 00 00 00 02 F7 03
 				39 01 00 00 09 00 03 F0 A5 A5
 			];
-			mi,mdss-dsi-flat-off-command = [
-				39 00 00 00 00 00 03 F0 5A 5A
-				39 00 00 00 00 00 03 C2 2D 07
-				39 00 00 00 00 00 02 F7 03
+			mi,mdss-dsi-flat-mode-off-command = [
+				39 01 00 00 00 00 03 F0 5A 5A
+				39 00 00 00 00 00 1D C2 2D 07 FE 82 C6 70 82 70 CA 0A 0A 0A 28 28 28 35 35 35 3F 3F 3F 42 42 42 1B DA 2F 48
+				39 01 00 00 00 00 02 F7 03
 				39 01 00 00 09 00 03 F0 A5 A5
 			];
-			mi,mdss-dsi-flat-on-command-state = "dsi_lp_mode";
-			mi,mdss-dsi-flat-off-command-state = "dsi_lp_mode";
+			mi,mdss-dsi-flat-mode-on-command-state = "dsi_lp_mode";
+			mi,mdss-dsi-flat-mode-off-command-state = "dsi_lp_mode";
 
 			mi,mdss-dsi-crc-off-command = [
 				/* CRC Disable (Normal mode) */
@@ -630,8 +594,7 @@
 			mi,mdss-dsi-hbm-off-command-state = "dsi_lp_mode";
 
 			mi,mdss-dsi-doze-hbm-command = [
-				05 01 00 00 00 00 02 28 00
-				39 00 00 00 00 00 03 F0 5A 5A
+				39 01 00 00 00 00 03 F0 5A 5A
 				39 00 00 00 00 00 02 60 00
 				39 00 00 00 00 00 03 FC 5A 5A
 				39 00 00 00 00 00 02 B0 16
@@ -639,13 +602,11 @@
 				39 00 00 00 00 00 03 FC A5 A5
 				39 00 00 00 00 00 02 B0 0B
 				39 00 00 00 00 00 03 D8 50 00
-				39 00 00 00 00 00 02 53 22
-				39 01 00 00 22 00 03 F0 A5 A5
-				05 01 00 00 00 00 02 29 00
+				39 01 00 00 00 00 02 53 22
+				39 01 00 00 00 00 03 F0 5A 5A
 			];
 			mi,mdss-dsi-doze-lbm-command = [
-				05 01 00 00 00 00 02 28 00
-				39 00 00 00 00 00 03 F0 5A 5A
+				39 01 00 00 00 00 03 F0 5A 5A
 				39 00 00 00 00 00 02 60 00
 				39 00 00 00 00 00 03 FC 5A 5A
 				39 00 00 00 00 00 02 B0 16
@@ -653,27 +614,26 @@
 				39 00 00 00 00 00 03 FC A5 A5
 				39 00 00 00 00 00 02 B0 0B
 				39 00 00 00 00 00 03 D8 50 00
-				39 00 00 00 00 00 02 53 23
-				39 01 00 00 22 00 03 F0 A5 A5
-				05 01 00 00 00 00 02 29 00
+				39 01 00 00 00 00 02 53 23
+				39 01 00 00 00 00 03 F0 5A 5A
 			];
 			mi,mdss-dsi-doze-hbm-command-state = "dsi_lp_mode";
 			mi,mdss-dsi-doze-lbm-command-state = "dsi_lp_mode";
 
-			mi,mdss-dsi-flat-on-command = [
-				39 00 00 00 00 00 03 F0 5A 5A
-				39 00 00 00 00 00 03 C2 2D 27
-				39 00 00 00 00 00 02 F7 03
+			mi,mdss-dsi-flat-mode-on-command = [
+				39 01 00 00 00 00 03 F0 5A 5A
+				39 00 00 00 00 00 1D C2 2D 27 FE 82 C6 70 82 70 CA 0A 0A 0A 28 28 28 35 35 35 3F 3F 3F 42 42 42 1B DA 2F 48
+				39 01 00 00 00 00 02 F7 03
 				39 01 00 00 09 00 03 F0 A5 A5
 			];
-			mi,mdss-dsi-flat-off-command = [
-				39 00 00 00 00 00 03 F0 5A 5A
-				39 00 00 00 00 00 03 C2 2D 07
-				39 00 00 00 00 00 02 F7 03
+			mi,mdss-dsi-flat-mode-off-command = [
+				39 01 00 00 00 00 03 F0 5A 5A
+				39 00 00 00 00 00 1D C2 2D 07 FE 82 C6 70 82 70 CA 0A 0A 0A 28 28 28 35 35 35 3F 3F 3F 42 42 42 1B DA 2F 48
+				39 01 00 00 00 00 02 F7 03
 				39 01 00 00 09 00 03 F0 A5 A5
 			];
-			mi,mdss-dsi-flat-on-command-state = "dsi_lp_mode";
-			mi,mdss-dsi-flat-off-command-state = "dsi_lp_mode";
+			mi,mdss-dsi-flat-mode-on-command-state = "dsi_lp_mode";
+			mi,mdss-dsi-flat-mode-off-command-state = "dsi_lp_mode";
 
 			mi,mdss-dsi-crc-off-command = [
 				/* CRC Disable (Normal mode) */
