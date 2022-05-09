@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (c) 2019-2021, The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2019, The Linux Foundation. All rights reserved.
  */
 
 
@@ -340,7 +339,6 @@ static struct cam_vfe_bus_ver3_reg_offset_ubwc_client
 	.lossy_thresh1    = 0x0000AC58,
 	.off_lossy_var    = 0x0000AC5C,
 	.bw_limit         = 0x0000AC1C,
-	.ubwc_comp_en_bit = BIT(1),
 };
 
 static struct cam_vfe_bus_ver3_reg_offset_ubwc_client
@@ -354,7 +352,6 @@ static struct cam_vfe_bus_ver3_reg_offset_ubwc_client
 	.lossy_thresh1    = 0x0000AD58,
 	.off_lossy_var    = 0x0000AD5C,
 	.bw_limit         = 0x0000AD1C,
-	.ubwc_comp_en_bit = BIT(1),
 };
 
 static struct cam_vfe_bus_ver3_reg_offset_ubwc_client
@@ -368,7 +365,6 @@ static struct cam_vfe_bus_ver3_reg_offset_ubwc_client
 	.lossy_thresh1    = 0x0000B058,
 	.off_lossy_var    = 0x0000B05C,
 	.bw_limit         = 0x0000B01C,
-	.ubwc_comp_en_bit = BIT(1),
 };
 
 static struct cam_vfe_bus_ver3_reg_offset_ubwc_client
@@ -382,7 +378,6 @@ static struct cam_vfe_bus_ver3_reg_offset_ubwc_client
 	.lossy_thresh1    = 0x0000B158,
 	.off_lossy_var    = 0x0000B15C,
 	.bw_limit         = 0x0000B11C,
-	.ubwc_comp_en_bit = BIT(1),
 };
 
 static struct cam_vfe_bus_ver3_hw_info vfe480_bus_hw_info = {
@@ -1317,7 +1312,6 @@ static struct cam_vfe_bus_ver3_hw_info vfe480_bus_hw_info = {
 	},
 	.comp_done_shift = 6,
 	.top_irq_shift   = 7,
-	.support_consumed_addr = true,
 };
 
 static struct cam_irq_register_set vfe480_bus_rd_irq_reg[1] = {

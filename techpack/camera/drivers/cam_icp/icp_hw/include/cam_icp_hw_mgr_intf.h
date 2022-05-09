@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< HEAD
- * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
->>>>>>> 939bbd0c1bb5... techpack: camera: Import Xiaomi changes
  */
 
 #ifndef CAM_ICP_HW_MGR_INTF_H
@@ -23,8 +19,6 @@
 #define CAM_ICP_CTX_MAX          65
 
 #define CPAS_IPE1_BIT            0x2000
-
-#define CAM_ICP_UBWC_COMP_EN     BIT(1)
 
 #define CAM_IPE_DEFAULT_AXI_PATH    CAM_AXI_PATH_DATA_IPE_WR_VID
 #define CAM_IPE_DEFAULT_AXI_TRANSAC CAM_AXI_TRANSACTION_WRITE

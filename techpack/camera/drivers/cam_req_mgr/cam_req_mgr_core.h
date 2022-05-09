@@ -35,8 +35,6 @@
 
 #define MAXIMUM_RETRY_ATTEMPTS 3
 
-#define MINIMUM_WORKQUEUE_SCHED_TIME_IN_MS 5
-
 #define VERSION_1  1
 #define VERSION_2  2
 

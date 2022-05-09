@@ -1,11 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< HEAD
- * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
-=======
  * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
->>>>>>> 939bbd0c1bb5... techpack: camera: Import Xiaomi changes
  */
 
 #ifndef _CAM_ISP_CONTEXT_H_
@@ -100,25 +95,6 @@ struct cam_isp_ctx_irq_ops {
 /**
  * struct cam_isp_ctx_req - ISP context request object
  *
-<<<<<<< HEAD
- * @base:                      Common request object ponter
- * @cfg:                       ISP hardware configuration array
- * @num_cfg:                   Number of ISP hardware configuration entries
- * @fence_map_out:             Output fence mapping array
- * @num_fence_map_out:         Number of the output fence map
- * @fence_map_in:              Input fence mapping array
- * @num_fence_map_in:          Number of input fence map
- * @num_acked:                 Count to track acked entried for output.
- *                             If count equals the number of fence out, it means
- *                             the request has been completed.
- * @bubble_report:             Flag to track if bubble report is active on
- *                             current request
- * @hw_update_data:            HW update data for this request
- * @event_timestamp:           Timestamp for different stage of request
- * @reapply:                   True if reapplying after bubble
- * @cdm_reset_before_apply:    For bubble re-apply when buf done not coming set
- *                             to True
-=======
  * @base:                  Common request object ponter
  * @cfg:                   ISP hardware configuration array
  * @num_cfg:               Number of ISP hardware configuration entries
@@ -133,7 +109,6 @@ struct cam_isp_ctx_irq_ops {
  *                         current request
  * @hw_update_data:        HW update data for this request
  * @reapply:               True if reapplying after bubble
->>>>>>> 939bbd0c1bb5... techpack: camera: Import Xiaomi changes
  *
  */
 struct cam_isp_ctx_req {
@@ -151,7 +126,6 @@ struct cam_isp_ctx_req {
 	struct cam_isp_prepare_hw_update_data hw_update_data;
 	bool                                  bubble_detected;
 	bool                                  reapply;
-	bool                                  cdm_reset_before_apply;
 };
 
 /**
@@ -195,7 +169,6 @@ struct cam_isp_context_state_monitor {
  * @subscribe_event:           The irq event mask that CRM subscribes to, IFE
  *                             will invoke CRM cb at those event.
  * @last_applied_req_id:       Last applied request id
- * @last_sof_timestamp:        SOF timestamp of the last frame
  * @state_monitor_head:        Write index to the state monitoring array
  * @cam_isp_ctx_state_monitor: State monitoring array
  * @rdi_only_context:          Get context type information.
@@ -203,41 +176,10 @@ struct cam_isp_context_state_monitor {
  * @hw_acquired:               Indicate whether HW resources are acquired
  * @init_received:             Indicate whether init config packet is received
  * @split_acquire:             Indicate whether a separate acquire is expected
-<<<<<<< HEAD
- * @custom_enabled:            Custom HW enabled for this ctx
- * @use_frame_header_ts:       Use frame header for qtimer ts
- * @support_consumed_addr:     Indicate whether HW has last consumed addr reg
-=======
->>>>>>> 939bbd0c1bb5... techpack: camera: Import Xiaomi changes
  * @init_timestamp:            Timestamp at which this context is initialized
  *
  */
 struct cam_isp_context {
-<<<<<<< HEAD
-	struct cam_context              *base;
-
-	int64_t                          frame_id;
-	uint32_t                         frame_id_meta;
-	uint32_t                         substate_activated;
-	atomic_t                         process_bubble;
-	uint32_t                         bubble_frame_cnt;
-	struct cam_ctx_ops              *substate_machine;
-	struct cam_isp_ctx_irq_ops      *substate_machine_irq;
-
-	struct cam_ctx_request           req_base[CAM_CTX_REQ_MAX];
-	struct cam_isp_ctx_req           req_isp[CAM_CTX_REQ_MAX];
-
-	void                            *hw_ctx;
-	uint64_t                         sof_timestamp_val;
-	uint64_t                         boot_timestamp;
-	int32_t                          active_req_cnt;
-	int64_t                          reported_req_id;
-	uint32_t                         subscribe_event;
-	int64_t                          last_applied_req_id;
-	uint64_t                         last_sof_timestamp;
-	atomic64_t                       state_monitor_head;
-	struct cam_isp_context_state_monitor cam_isp_ctx_state_monitor[
-=======
 	struct cam_context                   *base;
 
 	int64_t                               frame_id;
@@ -259,18 +201,11 @@ struct cam_isp_context {
 	int64_t                               last_applied_req_id;
 	atomic64_t                            state_monitor_head;
 	struct cam_isp_context_state_monitor  cam_isp_ctx_state_monitor[
->>>>>>> 939bbd0c1bb5... techpack: camera: Import Xiaomi changes
 		CAM_ISP_CTX_STATE_MONITOR_MAX_ENTRIES];
 	bool                                  rdi_only_context;
 	bool                                  hw_acquired;
 	bool                                  init_received;
 	bool                                  split_acquire;
-<<<<<<< HEAD
-	bool                                  custom_enabled;
-	bool                                  use_frame_header_ts;
-	bool                                  support_consumed_addr;
-=======
->>>>>>> 939bbd0c1bb5... techpack: camera: Import Xiaomi changes
 	unsigned int                          init_timestamp;
 };
 

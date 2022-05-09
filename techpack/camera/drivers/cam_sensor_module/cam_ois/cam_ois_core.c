@@ -92,10 +92,6 @@ static int cam_ois_get_dev_handle(struct cam_ois_ctrl_t *o_ctrl,
 
 	ois_acq_dev.device_handle =
 		cam_create_device_hdl(&bridge_params);
-	if (ois_acq_dev.device_handle <= 0) {
-		CAM_ERR(CAM_OIS, "Can not create device handle");
-		return -EFAULT;
-	}
 	o_ctrl->bridge_intf.device_hdl = ois_acq_dev.device_handle;
 	o_ctrl->bridge_intf.session_hdl = ois_acq_dev.session_handle;
 
@@ -955,10 +951,19 @@ static int cam_ois_get_data(struct cam_ois_ctrl_t *o_ctrl,
 	t_now = get_cycles();
 	boottime64 = (uint64_t)((ts64.tv_sec * 1000000000) + ts64.tv_nsec);
 
-	rc = camera_io_dev_read_seq(&(o_ctrl->io_master_info),
-			OIS_DATA_ADDR, o_ctrl->ois_data.data,
-			CAMERA_SENSOR_I2C_TYPE_BYTE, CAMERA_SENSOR_I2C_TYPE_BYTE,
-			num_data);
+	if (o_ctrl->opcode.ois_get_data != 0) {
+		uint32_t ois_addr = (o_ctrl->opcode.ois_get_data & 0xFFFF0000) >> 16;
+		uint32_t ois_addr_type = o_ctrl->opcode.ois_get_data & 0xFFFF;
+		rc = camera_io_dev_read_seq(&(o_ctrl->io_master_info),
+				ois_addr, o_ctrl->ois_data.data,
+				ois_addr_type, CAMERA_SENSOR_I2C_TYPE_BYTE,
+				num_data);
+	} else {
+		rc = camera_io_dev_read_seq(&(o_ctrl->io_master_info),
+				OIS_DATA_ADDR, o_ctrl->ois_data.data,
+				CAMERA_SENSOR_I2C_TYPE_BYTE, CAMERA_SENSOR_I2C_TYPE_BYTE,
+				num_data);
+	}
 	o_ctrl->ois_data.data_timestamp = (uint64_t)(t_now*10000/192);//< QTimer Freq = 19.2 MHz
 
 	if (rc < 0) {
