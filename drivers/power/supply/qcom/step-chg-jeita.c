@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2017-2019, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2017-2019 The Linux Foundation. All rights reserved.
  */
 
 #define pr_fmt(fmt) "QCOM-STEPCHG: %s: " fmt, __func__
@@ -15,11 +15,8 @@
 #include "step-chg-jeita.h"
 
 #define STEP_CHG_VOTER		"STEP_CHG_VOTER"
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 #define STEP_BMS_CHG_VOTER	"STEP_BMS_CHG_VOTER"
-#endif
 #define JEITA_VOTER		"JEITA_VOTER"
-#define JEITA_FCC_SCALE_VOTER	"JEITA_FCC_SCALE_VOTER"
 
 #define is_between(left, right, value) \
 		(((left) >= (right) && (left) >= (value) \
@@ -42,12 +39,10 @@ struct jeita_fv_cfg {
 	struct range_data		fv_cfg[MAX_STEP_CHG_ENTRIES];
 };
 
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 struct cold_step_chg_cfg {
 	struct step_chg_jeita_param	param;
 	struct range_data		fcc_cfg[MAX_COLD_STEP_CHG_ENTRIES];
 };
-#endif
 
 struct step_chg_info {
 	struct device		*dev;
@@ -59,62 +54,42 @@ struct step_chg_info {
 	bool			config_is_read;
 	bool			step_chg_cfg_valid;
 	bool			sw_jeita_cfg_valid;
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	bool			cold_step_chg_cfg_valid;
-#endif
 	bool			soc_based_step_chg;
 	bool			ocv_based_step_chg;
 	bool			vbat_avg_based_step_chg;
 	bool			batt_missing;
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	bool			use_bq_pump;
 	bool			use_bq_gauge;
-#endif
 	bool			taper_fcc;
-	bool			jeita_fcc_scaling;
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	bool			six_pin_battery;
-#endif
 	int			jeita_fcc_index;
 	int			jeita_fv_index;
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	int			jeita_cold_fcc_index;
-#endif
 	int			step_index;
 	int			get_config_retry_count;
-	int			jeita_last_update_temp;
-	int			jeita_fcc_scaling_temp_threshold[2];
-	long			jeita_max_fcc_ua;
-	long			jeita_fcc_step_size;
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	int			jeita_hot_th;
 	int			jeita_cold_th;
 	int			jeita_cool_th;
 	int			jeita_warm_th;
-#endif
 
 	struct step_chg_cfg	*step_chg_config;
 	struct jeita_fcc_cfg	*jeita_fcc_config;
 	struct jeita_fv_cfg	*jeita_fv_config;
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	struct cold_step_chg_cfg	*cold_step_chg_config;
-#endif
+
 
 	struct votable		*fcc_votable;
 	struct votable		*fv_votable;
 	struct votable		*usb_icl_votable;
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	struct votable		*chg_disable_votable;
 	struct votable		*cp_disable_votable;
-#endif
 	struct wakeup_source	*step_chg_ws;
 	struct power_supply	*batt_psy;
 	struct power_supply	*bms_psy;
 	struct power_supply	*usb_psy;
 	struct power_supply	*dc_psy;
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	struct power_supply	*wls_psy;
-#endif
 	struct delayed_work	status_change_work;
 	struct delayed_work	get_config_work;
 	struct notifier_block	nb;
@@ -195,7 +170,6 @@ static bool is_input_present(struct step_chg_info *chip)
 	return false;
 }
 
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 static bool is_dc_wls_available(struct step_chg_info *chip)
 {
 	if (!chip->dc_psy)
@@ -209,7 +183,6 @@ static bool is_dc_wls_available(struct step_chg_info *chip)
 
 	return true;
 }
-#endif
 
 int read_range_data_from_node(struct device_node *node,
 		const char *prop_str, struct range_data *ranges,
@@ -290,8 +263,7 @@ static int get_step_chg_jeita_setting_from_profile(struct step_chg_info *chip)
 	u32 max_fv_uv, max_fcc_ma;
 	const char *batt_type_str;
 	const __be32 *handle;
-	int batt_id_ohms, rc, hysteresis[2] = {0};
-	u32 jeita_scaling_min_fcc_ua = 0;
+	int batt_id_ohms, rc;
 	union power_supply_propval prop = {0, };
 
 	handle = of_get_property(chip->dev->of_node,
@@ -350,7 +322,6 @@ static int get_step_chg_jeita_setting_from_profile(struct step_chg_info *chip)
 		pr_err("max-fastchg-current-ma reading failed, rc=%d\n", rc);
 		return rc;
 	}
-	chip->jeita_max_fcc_ua = max_fcc_ma * 1000;
 
 	chip->taper_fcc = of_property_read_bool(profile_node, "qcom,taper-fcc");
 
@@ -360,31 +331,23 @@ static int get_step_chg_jeita_setting_from_profile(struct step_chg_info *chip)
 		chip->step_chg_config->param.psy_prop =
 				POWER_SUPPLY_PROP_CAPACITY;
 		chip->step_chg_config->param.prop_name = "SOC";
-		chip->step_chg_config->param.rise_hys = 0;
-		chip->step_chg_config->param.fall_hys = 0;
+		chip->step_chg_config->param.hysteresis = 0;
 	}
 
 	chip->ocv_based_step_chg =
 		of_property_read_bool(profile_node, "qcom,ocv-based-step-chg");
 	if (chip->ocv_based_step_chg) {
 		chip->step_chg_config->param.psy_prop =
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 				POWER_SUPPLY_PROP_VOLTAGE_NOW;
-#else
-				POWER_SUPPLY_PROP_VOLTAGE_OCV;
-#endif
 		chip->step_chg_config->param.prop_name = "OCV";
-		chip->step_chg_config->param.rise_hys = 0;
-		chip->step_chg_config->param.fall_hys = 0;
+		chip->step_chg_config->param.hysteresis = 0;
 		chip->step_chg_config->param.use_bms = true;
-#ifdef CONFIG_MACH_XIAOMI_SM8250
+
 		chip->cold_step_chg_config->param.psy_prop =
 				POWER_SUPPLY_PROP_VOLTAGE_NOW;
 		chip->cold_step_chg_config->param.prop_name = "OCV";
-		chip->cold_step_chg_config->param.rise_hys = 100000;
-		chip->cold_step_chg_config->param.fall_hys = 100000;
+		chip->cold_step_chg_config->param.hysteresis = 100000;
 		chip->cold_step_chg_config->param.use_bms = true;
-#endif
 	}
 
 	chip->vbat_avg_based_step_chg =
@@ -394,8 +357,7 @@ static int get_step_chg_jeita_setting_from_profile(struct step_chg_info *chip)
 		chip->step_chg_config->param.psy_prop =
 				POWER_SUPPLY_PROP_VOLTAGE_AVG;
 		chip->step_chg_config->param.prop_name = "VBAT_AVG";
-		chip->step_chg_config->param.rise_hys = 0;
-		chip->step_chg_config->param.fall_hys = 0;
+		chip->step_chg_config->param.hysteresis = 0;
 		chip->step_chg_config->param.use_bms = true;
 	}
 
@@ -422,15 +384,6 @@ static int get_step_chg_jeita_setting_from_profile(struct step_chg_info *chip)
 		chip->sw_jeita_cfg_valid = false;
 	}
 
-	rc = of_property_read_u32_array(profile_node,
-			"qcom,step-jeita-hysteresis", hysteresis, 2);
-	if (!rc) {
-		chip->jeita_fcc_config->param.rise_hys = hysteresis[0];
-		chip->jeita_fcc_config->param.fall_hys = hysteresis[1];
-		pr_debug("jeita-fcc-hys: rise_hys=%u, fall_hys=%u\n",
-			hysteresis[0], hysteresis[1]);
-	}
-
 	rc = read_range_data_from_node(profile_node,
 			"qcom,jeita-fv-ranges",
 			chip->jeita_fv_config->fv_cfg,
@@ -441,48 +394,6 @@ static int get_step_chg_jeita_setting_from_profile(struct step_chg_info *chip)
 		chip->sw_jeita_cfg_valid = false;
 	}
 
-	if (of_property_read_bool(profile_node, "qcom,jeita-fcc-scaling")) {
-
-		rc = of_property_read_u32_array(profile_node,
-				"qcom,jeita-fcc-scaling-temp-threshold",
-				chip->jeita_fcc_scaling_temp_threshold, 2);
-		if (rc < 0)
-			pr_debug("Read jeita-fcc-scaling-temp-threshold from battery profile, rc=%d\n",
-				rc);
-
-		rc = of_property_read_u32(profile_node,
-			"qcom,jeita-scaling-min-fcc-ua",
-			&jeita_scaling_min_fcc_ua);
-		if (rc < 0)
-			pr_debug("Read jeita-scaling-min-fcc-ua from battery profile, rc=%d\n",
-				rc);
-
-		if ((jeita_scaling_min_fcc_ua &&
-			(jeita_scaling_min_fcc_ua < chip->jeita_max_fcc_ua)) &&
-			(chip->jeita_fcc_scaling_temp_threshold[0] <
-			chip->jeita_fcc_scaling_temp_threshold[1])) {
-			/*
-			 * Calculate jeita-fcc-step-size =
-			 *	(difference-in-fcc) / ( difference-in-temp)
-			 */
-			chip->jeita_fcc_step_size = div_s64(
-			(chip->jeita_max_fcc_ua - jeita_scaling_min_fcc_ua),
-			(chip->jeita_fcc_scaling_temp_threshold[1] -
-				chip->jeita_fcc_scaling_temp_threshold[0]));
-
-			if (chip->jeita_fcc_step_size > 0)
-				chip->jeita_fcc_scaling = true;
-		}
-
-		pr_debug("jeita-fcc-scaling: enabled = %d, jeita-fcc-scaling-temp-threshold = [%d, %d], jeita-scaling-min-fcc-ua = %ld, jeita-scaling-max_fcc_ua = %ld,jeita-fcc-step-size = %ld\n",
-			chip->jeita_fcc_scaling,
-			chip->jeita_fcc_scaling_temp_threshold[0],
-			chip->jeita_fcc_scaling_temp_threshold[1],
-			jeita_scaling_min_fcc_ua, chip->jeita_max_fcc_ua,
-			chip->jeita_fcc_step_size
-			);
-	}
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	chip->cold_step_chg_cfg_valid = true;
 	rc = read_range_data_from_node(profile_node,
 			"qcom,cold-step-chg-ranges",
@@ -529,7 +440,6 @@ static int get_step_chg_jeita_setting_from_profile(struct step_chg_info *chip)
 
 	chip->six_pin_battery =
 		of_property_read_bool(profile_node, "mi,six-pin-battery");
-#endif
 
 	return rc;
 }
@@ -580,8 +490,9 @@ reschedule:
 
 }
 
-static int get_val(struct range_data *range, int rise_hys, int fall_hys,
-		int current_index, int threshold, int *new_index, int *val)
+static int get_val(struct range_data *range, int hysteresis, int current_index,
+		int threshold,
+		int *new_index, int *val)
 {
 	int i;
 
@@ -591,8 +502,10 @@ static int get_val(struct range_data *range, int rise_hys, int fall_hys,
 	 * If the threshold is lesser than the minimum allowed range,
 	 * return -ENODATA.
 	 */
-	if (threshold < range[0].low_threshold)
+	if (threshold < range[0].low_threshold) {
+		pr_err("threshold is low then %d, error!\n", range[0].low_threshold);
 		return -ENODATA;
+	}
 
 	/* First try to find the matching index without hysteresis */
 	for (i = 0; i < MAX_STEP_CHG_ENTRIES; i++) {
@@ -639,8 +552,7 @@ static int get_val(struct range_data *range, int rise_hys, int fall_hys,
 	 * of our current index.
 	 */
 	if (*new_index == current_index + 1) {
-		if (threshold <
-			(range[*new_index].low_threshold + rise_hys)) {
+		if (threshold < range[*new_index].low_threshold) {
 			/*
 			 * Stay in the current index, threshold is not higher
 			 * by hysteresis amount
@@ -649,8 +561,7 @@ static int get_val(struct range_data *range, int rise_hys, int fall_hys,
 			*val = range[current_index].value;
 		}
 	} else if (*new_index == current_index - 1) {
-		if (threshold >
-			range[*new_index].high_threshold - fall_hys) {
+		if (threshold > range[*new_index].high_threshold - hysteresis) {
 			/*
 			 * stay in the current index, threshold is not lower
 			 * by hysteresis amount
@@ -680,7 +591,7 @@ static void taper_fcc_step_chg(struct step_chg_info *chip, int index,
 		vote(chip->fcc_votable, STEP_CHG_VOTER, true, target_fcc);
 	} else if (current_voltage >
 		(chip->step_chg_config->fcc_cfg[index - 1].high_threshold +
-		chip->step_chg_config->param.rise_hys)) {
+		chip->step_chg_config->param.hysteresis)) {
 		/*
 		 * Ramp down FCC in pre-configured steps till the current index
 		 * FCC configuration is reached, whenever the step charging
@@ -693,7 +604,7 @@ static void taper_fcc_step_chg(struct step_chg_info *chip, int index,
 		chip->step_chg_config->fcc_cfg[index - 1].value) &&
 		(current_voltage >
 		chip->step_chg_config->fcc_cfg[index - 1].low_threshold +
-		chip->step_chg_config->param.fall_hys)) {
+		chip->step_chg_config->param.hysteresis)) {
 		/*
 		 * In case the step charging index switch to the next higher
 		 * index without FCCs saturation for the previous index, ramp
@@ -708,10 +619,9 @@ static void taper_fcc_step_chg(struct step_chg_info *chip, int index,
 static int handle_step_chg_config(struct step_chg_info *chip)
 {
 	union power_supply_propval pval = {0, };
-	int rc = 0, fcc_ua = 0, current_index;
+	int rc = 0, fcc_ua = 0, current_index, fv_uv = 0, update_now = 0;
 	u64 elapsed_us;
-#ifdef CONFIG_MACH_XIAOMI_SM8250
-	int fv_uv = 0, update_now = 0;
+
 	static int usb_present;
 
 	if (!is_usb_available(chip))
@@ -725,15 +635,10 @@ static int handle_step_chg_config(struct step_chg_info *chip)
 	if (pval.intval && pval.intval != usb_present)
 		update_now = true;
 	usb_present = pval.intval;
-#endif
 
 	elapsed_us = ktime_us_delta(ktime_get(), chip->step_last_update_time);
 	/* skip processing, event too early */
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	if (elapsed_us < STEP_CHG_HYSTERISIS_DELAY_US && !update_now)
-#else
-	if (elapsed_us < STEP_CHG_HYSTERISIS_DELAY_US)
-#endif
 		return 0;
 
 	rc = power_supply_get_property(chip->batt_psy,
@@ -764,8 +669,7 @@ static int handle_step_chg_config(struct step_chg_info *chip)
 
 	current_index = chip->step_index;
 	rc = get_val(chip->step_chg_config->fcc_cfg,
-			chip->step_chg_config->param.rise_hys,
-			chip->step_chg_config->param.fall_hys,
+			chip->step_chg_config->param.hysteresis,
 			chip->step_index,
 			pval.intval,
 			&chip->step_index,
@@ -797,12 +701,10 @@ static int handle_step_chg_config(struct step_chg_info *chip)
 		vote(chip->fcc_votable, STEP_CHG_VOTER, true, fcc_ua);
 	}
 
-	pr_debug("%s = %d Step-FCC = %duA taper-fcc: %d\n",
+	pr_info("%s = %d Step-FCC = %duA taper-fcc: %d\n",
 		chip->step_chg_config->param.prop_name, pval.intval,
 		get_client_vote(chip->fcc_votable, STEP_CHG_VOTER),
 		chip->taper_fcc);
-
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	/*bq27z561 get voltage max and current max*/
 	if (chip->use_bq_gauge) {
 		rc = power_supply_get_property(chip->bms_psy,
@@ -819,14 +721,12 @@ static int handle_step_chg_config(struct step_chg_info *chip)
 
 		pr_info("bms step charge fcc:%d fv:%d\n", fcc_ua, fv_uv);
 	}
-#endif
 
 update_time:
 	chip->step_last_update_time = ktime_get();
 	return 0;
 }
 
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 static int handle_fast_charge(struct step_chg_info *chip, int temp)
 {
 	union power_supply_propval pval = {0, };
@@ -869,8 +769,8 @@ static int handle_fast_charge(struct step_chg_info *chip, int temp)
 				return rc;
 			}
 			fast_mode_dis = true;
-		} else if ((temp < chip->jeita_warm_th - chip->jeita_fv_config->param.fall_hys) &&
-				(temp > chip->jeita_cool_th + chip->jeita_fv_config->param.rise_hys) && fast_mode_dis) {
+		} else if ((temp < chip->jeita_warm_th - chip->jeita_fv_config->param.hysteresis) &&
+				(temp > chip->jeita_cool_th + chip->jeita_fv_config->param.hysteresis) && fast_mode_dis) {
 			pr_err("temp:%d enable fastcharge mode\n", temp);
 			pval.intval = true;
 			rc = power_supply_set_property(chip->usb_psy,
@@ -887,27 +787,20 @@ static int handle_fast_charge(struct step_chg_info *chip, int temp)
 
 	return rc;
 }
-#endif
 
-#ifdef CONFIG_MACH_XIAOMI_SM8250
+
 /* set JEITA_SUSPEND_HYST_UV to 70mV to avoid recharge frequently when jeita warm */
 #define JEITA_SUSPEND_HYST_UV		120000
 #define JEITA_HYSTERESIS_TEMP_THRED	150
 #define JEITA_SIX_PIN_BATT_HYST_UV	100000
 #define WARM_VFLOAT_UV                  4100000
-#else
-#define JEITA_SUSPEND_HYST_UV		50000
-#endif
 static int handle_jeita(struct step_chg_info *chip)
 {
 	union power_supply_propval pval = {0, };
-	int rc = 0, fcc_ua = 0, fv_uv = 0;
+	int rc = 0, fcc_ua = 0, fv_uv = 0, temp = 0, volt_now = 0, cold_fcc_ua = 0, update_now = 0;
 	u64 elapsed_us;
-#ifdef CONFIG_MACH_XIAOMI_SM8250
-	int temp = 0, volt_now = 0, cold_fcc_ua = 0, update_now = 0;
 	static bool usb_present;
 	int curr_vfloat_uv, curr_vbat_uv;
-#endif
 
 	rc = power_supply_get_property(chip->batt_psy,
 		POWER_SUPPLY_PROP_SW_JEITA_ENABLED, &pval);
@@ -915,10 +808,6 @@ static int handle_jeita(struct step_chg_info *chip)
 		chip->sw_jeita_enable = false;
 	else
 		chip->sw_jeita_enable = pval.intval;
-
-	/* Handle jeita-fcc-scaling if enabled */
-	if (chip->jeita_fcc_scaling)
-		handle_jeita_fcc_scaling(chip);
 
 	if (!chip->sw_jeita_enable || !chip->sw_jeita_cfg_valid) {
 		if (chip->fcc_votable)
@@ -930,7 +819,6 @@ static int handle_jeita(struct step_chg_info *chip)
 		return 0;
 	}
 
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	if (!is_usb_available(chip))
 		return 0;
 	rc = power_supply_get_property(chip->usb_psy,
@@ -942,15 +830,10 @@ static int handle_jeita(struct step_chg_info *chip)
 	if (pval.intval && pval.intval != usb_present)
 		update_now = true;
 	usb_present = pval.intval;
-#endif
 
 	elapsed_us = ktime_us_delta(ktime_get(), chip->jeita_last_update_time);
 	/* skip processing, event too early */
-#ifdef CONFIG_MACH_XIAOMI_SM8250
-	if (elapsed_us < STEP_CHG_HYSTERISIS_DELAY_US && !update_now)
-#else
-	if (elapsed_us < STEP_CHG_HYSTERISIS_DELAY_US)
-#endif
+	if (elapsed_us < STEP_CHG_HYSTERISIS_DELAY_US  && !update_now)
 		return 0;
 
 	if (chip->jeita_fcc_config->param.use_bms)
@@ -966,7 +849,6 @@ static int handle_jeita(struct step_chg_info *chip)
 		return rc;
 	}
 
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	temp = pval.intval;
 
 	if (chip->cold_step_chg_cfg_valid) {
@@ -1019,37 +901,25 @@ static int handle_jeita(struct step_chg_info *chip)
 	}
 
 	if (temp <= JEITA_HYSTERESIS_TEMP_THRED) {
-		chip->jeita_fv_config->param.rise_hys = 5;
-		chip->jeita_fv_config->param.fall_hys = 5;
-		chip->jeita_fcc_config->param.rise_hys = 5;
-		chip->jeita_fcc_config->param.fall_hys = 5;
+		chip->jeita_fv_config->param.hysteresis = 5;
+		chip->jeita_fcc_config->param.hysteresis = 5;
 	} else  {
-		chip->jeita_fv_config->param.rise_hys = 20;
-		chip->jeita_fv_config->param.fall_hys = 20;
-		chip->jeita_fcc_config->param.rise_hys = 20;
-		chip->jeita_fcc_config->param.fall_hys = 20;
+		chip->jeita_fv_config->param.hysteresis = 20;
+		chip->jeita_fcc_config->param.hysteresis = 20;
 	}
-#endif
 
 	rc = get_val(chip->jeita_fcc_config->fcc_cfg,
-			chip->jeita_fcc_config->param.rise_hys,
-			chip->jeita_fcc_config->param.fall_hys,
+			chip->jeita_fcc_config->param.hysteresis,
 			chip->jeita_fcc_index,
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 			temp,
-#else
-			pval.intval,
-#endif
 			&chip->jeita_fcc_index,
 			&fcc_ua);
 	if (rc < 0)
 		fcc_ua = 0;
 
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	if (chip->cold_step_chg_cfg_valid == true) {
 		rc = get_val(chip->cold_step_chg_config->fcc_cfg,
-				chip->cold_step_chg_config->param.rise_hys,
-				chip->cold_step_chg_config->param.fall_hys,
+				chip->cold_step_chg_config->param.hysteresis,
 				chip->jeita_cold_fcc_index,
 				volt_now,
 				&chip->jeita_cold_fcc_index,
@@ -1057,7 +927,6 @@ static int handle_jeita(struct step_chg_info *chip)
 		if (rc < 0)
 			cold_fcc_ua = 0;
 	}
-#endif
 
 	if (!chip->fcc_votable)
 		chip->fcc_votable = find_votable("FCC");
@@ -1065,23 +934,18 @@ static int handle_jeita(struct step_chg_info *chip)
 		/* changing FCC is a must */
 		return -EINVAL;
 
-	vote(chip->fcc_votable, JEITA_VOTER, fcc_ua ? true : false, fcc_ua);
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	if (chip->cold_step_chg_cfg_valid) {
+		vote(chip->fcc_votable, JEITA_VOTER, fcc_ua ? true : false, fcc_ua);
 		if (chip->jeita_fcc_index == 0 && chip->jeita_cold_fcc_index != 0)
 			vote(chip->fcc_votable, JEITA_VOTER, cold_fcc_ua ? true : false, cold_fcc_ua);
+	} else {
+		vote(chip->fcc_votable, JEITA_VOTER, fcc_ua ? true : false, fcc_ua);
 	}
-#endif
 
 	rc = get_val(chip->jeita_fv_config->fv_cfg,
-			chip->jeita_fv_config->param.rise_hys,
-			chip->jeita_fv_config->param.fall_hys,
+			chip->jeita_fv_config->param.hysteresis,
 			chip->jeita_fv_index,
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 			temp,
-#else
-			pval.intval,
-#endif
 			&chip->jeita_fv_index,
 			&fv_uv);
 	if (rc < 0)
@@ -1097,9 +961,10 @@ static int handle_jeita(struct step_chg_info *chip)
 	if (!chip->usb_icl_votable)
 		goto set_jeita_fv;
 
-#ifdef CONFIG_MACH_XIAOMI_SM8250
+	pr_info("%s = %d FCC = %duA FV = %duV\n",
+		chip->jeita_fcc_config->param.prop_name, temp, fcc_ua, fv_uv);
+	pr_err("battery warm = %d battery cool = %d\n", chip->jeita_warm_th, chip->jeita_cool_th);
 	handle_fast_charge(chip, temp);
-#endif
 
 	/*
 	 * If JEITA float voltage is same as max-vfloat of battery then
@@ -1107,6 +972,8 @@ static int handle_jeita(struct step_chg_info *chip)
 	 */
 	rc = power_supply_get_property(chip->batt_psy,
 				POWER_SUPPLY_PROP_VOLTAGE_MAX, &pval);
+	pr_info("%s = %d max voltage= %duv FV = %duV\n",
+		chip->jeita_fcc_config->param.prop_name, temp, pval.intval, fv_uv);
 	if (rc || (pval.intval == fv_uv)) {
 		vote(chip->usb_icl_votable, JEITA_VOTER, false, 0);
 		goto set_jeita_fv;
@@ -1116,14 +983,10 @@ static int handle_jeita(struct step_chg_info *chip)
 	 * Suspend USB input path if battery voltage is above
 	 * JEITA VFLOAT threshold.
 	 */
-#ifndef CONFIG_MACH_XIAOMI_SM8250
-	if (chip->jeita_arb_en && fv_uv > 0) {
-#else
+	/* if (chip->jeita_arb_en && fv_uv > 0) { */
 	if (fv_uv > 0) {
-#endif
 		rc = power_supply_get_property(chip->batt_psy,
 				POWER_SUPPLY_PROP_VOLTAGE_NOW, &pval);
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 		if (rc < 0) {
 			pr_err("Get battery voltage failed, rc = %d\n", rc);
 			goto set_jeita_fv;
@@ -1161,12 +1024,6 @@ static int handle_jeita(struct step_chg_info *chip)
 				}
 			}
 		}
-#else
-		if (!rc && (pval.intval > fv_uv))
-			vote(chip->usb_icl_votable, JEITA_VOTER, true, 0);
-		else if (pval.intval < (fv_uv - JEITA_SUSPEND_HYST_UV))
-			vote(chip->usb_icl_votable, JEITA_VOTER, false, 0);
-#endif
 	}
 
 set_jeita_fv:
@@ -1316,26 +1173,18 @@ int qcom_step_chg_init(struct device *dev,
 
 	chip->step_chg_config = devm_kzalloc(dev,
 			sizeof(struct step_chg_cfg), GFP_KERNEL);
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	chip->cold_step_chg_config = devm_kzalloc(dev,
 			sizeof(struct cold_step_chg_cfg), GFP_KERNEL);
 	if (!chip->step_chg_config || !chip->cold_step_chg_config)
-#else
-	if (!chip->step_chg_config)
-#endif
 		return -ENOMEM;
 
 	chip->step_chg_config->param.psy_prop = POWER_SUPPLY_PROP_VOLTAGE_NOW;
 	chip->step_chg_config->param.prop_name = "VBATT";
-	chip->step_chg_config->param.rise_hys = 100000;
-	chip->step_chg_config->param.fall_hys = 100000;
+	chip->step_chg_config->param.hysteresis = 100000;
 
-#ifdef CONFIG_MACH_XIAOMI_SM8250
 	chip->cold_step_chg_config->param.psy_prop = POWER_SUPPLY_PROP_VOLTAGE_NOW;
 	chip->cold_step_chg_config->param.prop_name = "VBATT";
-	chip->cold_step_chg_config->param.rise_hys = 100000;
-	chip->cold_step_chg_config->param.fall_hys = 100000;
-#endif
+	chip->cold_step_chg_config->param.hysteresis = 100000;
 
 	chip->jeita_fcc_config = devm_kzalloc(dev,
 			sizeof(struct jeita_fcc_cfg), GFP_KERNEL);
@@ -1346,22 +1195,10 @@ int qcom_step_chg_init(struct device *dev,
 
 	chip->jeita_fcc_config->param.psy_prop = POWER_SUPPLY_PROP_TEMP;
 	chip->jeita_fcc_config->param.prop_name = "BATT_TEMP";
-#ifdef CONFIG_MACH_XIAOMI_SM8250
-	chip->jeita_fcc_config->param.rise_hys = 20;
-	chip->jeita_fcc_config->param.fall_hys = 20;
-#else
-	chip->jeita_fcc_config->param.rise_hys = 10;
-	chip->jeita_fcc_config->param.fall_hys = 10;
-#endif
+	chip->jeita_fcc_config->param.hysteresis = 20;
 	chip->jeita_fv_config->param.psy_prop = POWER_SUPPLY_PROP_TEMP;
 	chip->jeita_fv_config->param.prop_name = "BATT_TEMP";
-#ifdef CONFIG_MACH_XIAOMI_SM8250
-	chip->jeita_fv_config->param.rise_hys = 20;
-	chip->jeita_fv_config->param.fall_hys = 20;
-#else
-	chip->jeita_fv_config->param.rise_hys = 10;
-	chip->jeita_fv_config->param.fall_hys = 10;
-#endif
+	chip->jeita_fv_config->param.hysteresis = 20;
 
 	INIT_DELAYED_WORK(&chip->status_change_work, status_change_work);
 	INIT_DELAYED_WORK(&chip->get_config_work, get_config_work);
