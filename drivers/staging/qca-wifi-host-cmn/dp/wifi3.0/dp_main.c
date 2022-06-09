@@ -93,6 +93,8 @@ cdp_dump_flow_pool_info(struct cdp_soc_t *soc)
 #else
 #define SET_PEER_REF_CNT_ONE(_peer)
 #endif
+#define IPA_TCL_DATA_RING_IDX	2
+
 
 /*
  * The max size of cdp_peer_stats_param_t is limited to 16 bytes.
