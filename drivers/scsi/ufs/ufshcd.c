@@ -8551,12 +8551,9 @@ static int ufs_get_device_desc(struct ufs_hba *hba,
 	int err;
 	size_t buff_len;
 	u8 model_index, lun;
-	u8 *desc_buf;
 	u32 d_lu_wb_buf_alloc;
-	u8 model_index;	
 	u8 *desc_buf, wb_buf[4];
-	u32 lun, res;
-
+	
 	buff_len = max_t(size_t, hba->desc_size.dev_desc,
 			 QUERY_DESC_MAX_SIZE + 1);
 	desc_buf = kmalloc(buff_len, GFP_KERNEL);
