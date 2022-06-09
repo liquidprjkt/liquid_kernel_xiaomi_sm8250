@@ -698,27 +698,6 @@ int cam_cpas_hw_get_camnoc_fill_level_info(
 			val);
 
 		break;
-	case CAM_CPAS_TITAN_150_V100:
-	case CAM_CPAS_TITAN_170_V100:
-	case CAM_CPAS_TITAN_170_V110:
-	case CAM_CPAS_TITAN_170_V120:
-	case CAM_CPAS_TITAN_170_V200:
-	case CAM_CPAS_TITAN_175_V100:
-	case CAM_CPAS_TITAN_175_V101:
-		cam_cpas_reg_read(client_handle,
-			CAM_CPAS_REG_CAMNOC, camnoc_reg_info->IFE02_MAXWR_LOW,
-			true, &val);
-		CAM_INFO(CAM_ISP, "IFE02_MAXWR_LOW offset 0x%x val 0x%x",
-			camnoc_reg_info->IFE02_MAXWR_LOW,
-			val);
-
-		cam_cpas_reg_read(client_handle,
-			CAM_CPAS_REG_CAMNOC, camnoc_reg_info->IFE13_MAXWR_LOW,
-			true, &val);
-		CAM_INFO(CAM_ISP, "IFE13_MAXWR_LOW offset 0x%x val 0x%x",
-			camnoc_reg_info->IFE13_MAXWR_LOW,
-			val);
-		break;
 	default:
 		CAM_ERR(CAM_CPAS, "Camera version not supported %d",
 			cpas_version);

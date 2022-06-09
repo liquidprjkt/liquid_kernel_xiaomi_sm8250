@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< HEAD
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
-=======
- * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
->>>>>>> 939bbd0c1bb5... techpack: camera: Import Xiaomi changes
  */
 
 #include <linux/uaccess.h>
@@ -1898,7 +1894,6 @@ static int cam_icp_hw_mgr_create_debugfs_entry(void)
 		goto err;
 	}
 
-<<<<<<< HEAD
 	if (!debugfs_create_bool("disable_ubwc_comp",
 		0644,
 		icp_hw_mgr.dentry,
@@ -1910,8 +1905,6 @@ static int cam_icp_hw_mgr_create_debugfs_entry(void)
 
 	/* Set default hang dump lvl */
 	icp_hw_mgr.a5_fw_dump_lvl = HFI_FW_DUMP_ON_FAILURE;
-=======
->>>>>>> 939bbd0c1bb5... techpack: camera: Import Xiaomi changes
 	return rc;
 err:
 	debugfs_remove_recursive(icp_hw_mgr.dentry);
@@ -5710,37 +5703,24 @@ static int cam_icp_mgr_create_wq(void)
 	int i;
 
 	rc = cam_req_mgr_workq_create("icp_command_queue", ICP_WORKQ_NUM_TASK,
-<<<<<<< HEAD
 		&icp_hw_mgr.cmd_work, CRM_WORKQ_USAGE_NON_IRQ, 0, false,
 		cam_req_mgr_process_workq_icp_command_queue);
-=======
-		&icp_hw_mgr.cmd_work, CRM_WORKQ_USAGE_NON_IRQ,
-		0);
->>>>>>> 939bbd0c1bb5... techpack: camera: Import Xiaomi changes
 	if (rc) {
 		CAM_ERR(CAM_ICP, "unable to create a command worker");
 		goto cmd_work_failed;
 	}
 
 	rc = cam_req_mgr_workq_create("icp_message_queue", ICP_WORKQ_NUM_TASK,
-<<<<<<< HEAD
 		&icp_hw_mgr.msg_work, CRM_WORKQ_USAGE_IRQ, 0, false,
 		cam_req_mgr_process_workq_icp_message_queue);
-=======
-		&icp_hw_mgr.msg_work, CRM_WORKQ_USAGE_IRQ, 0);
->>>>>>> 939bbd0c1bb5... techpack: camera: Import Xiaomi changes
 	if (rc) {
 		CAM_ERR(CAM_ICP, "unable to create a message worker");
 		goto msg_work_failed;
 	}
 
 	rc = cam_req_mgr_workq_create("icp_timer_queue", ICP_WORKQ_NUM_TASK,
-<<<<<<< HEAD
 		&icp_hw_mgr.timer_work, CRM_WORKQ_USAGE_IRQ, 0, false,
 		cam_req_mgr_process_workq_icp_timer_queue);
-=======
-		&icp_hw_mgr.timer_work, CRM_WORKQ_USAGE_IRQ, 0);
->>>>>>> 939bbd0c1bb5... techpack: camera: Import Xiaomi changes
 	if (rc) {
 		CAM_ERR(CAM_ICP, "unable to create a timer worker");
 		goto timer_work_failed;
